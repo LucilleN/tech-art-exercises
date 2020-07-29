@@ -21,7 +21,7 @@ def getFileNamespace(filePath):
         return
     fileDirectory, fileFullName = os.path.split(filePath)
     fileName, fileExt = os.path.splitext(fileFullName)
-    return fileName
+    return "ns_{0}".format(fileName)
 
 def createReference(filePath, ns):
     """
@@ -67,6 +67,13 @@ def connectTranslateRotateScale(src, dest):
     for attribute in attributes:
         connectSingleAttribute(src, dest, attribute)
 
+def applyParentConstraint(driver, driven):
+    """
+    Given a driver object (parent) and a driven object (child),
+    applies a parent constraint.
+    """
+    pass
+
 def connectAnimAndRigJoints(animJoints, rigJoints):
     """
     Given a list of animation joints and a list of rig joints,
@@ -99,12 +106,21 @@ def removeReference(filePathToRemove):
 ##########
 
 def main():
-    createNewScene()
-
     animPath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\animations\maya\01_01.ma'.replace("\\", "/")
     rigPath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\character.mb'.replace("\\", "/")
     animNs = getFileNamespace(animPath)
     rigNs = getFileNamespace(rigPath)
+    
+    maya.cmds.file(animPath, o=True, f=True)
+    firstKeyframe = maya.cmds.findKeyframe(which="first")
+    
+    print("???")
+    createNewScene()
+    print("FUCK ME")
+    print(firstKeyframe)
+
+    maya.cmds.playbackOptions(animationStartTime=firstKeyframe, minTime=firstKeyframe)
+    maya.cmds.currentTime(firstKeyframe)
 
     createReference(animPath, animNs)
     createReference(rigPath, rigNs)
@@ -134,6 +150,9 @@ def main():
     )
 
     removeReference(animPath)
+
+    newFilePath = rigPath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\assignment.mb'.replace("\\", "/")
+    saveFile(newFilePath)
 
 if __name__ == "__main__":
     main()
