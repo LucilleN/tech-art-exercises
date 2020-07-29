@@ -69,10 +69,11 @@ def connectTranslateRotateScale(src, dest):
 
 def applyParentConstraint(driver, driven):
     """
-    Given a driver object (parent) and a driven object (child),
-    applies a parent constraint.
+    Given a driver object (parent, aka the animation) and a driven 
+    object (child, aka the rig to accept the animation), applies a 
+    parent constraint.
     """
-    pass
+    maya.cmds.parentConstraint(driver, driven, mo=True)
 
 def connectAnimAndRigJoints(animJoints, rigJoints):
     """
@@ -86,7 +87,8 @@ def connectAnimAndRigJoints(animJoints, rigJoints):
         for rigJoint in rigJoints:
             rigJointName = rigJoint.split(":")[1]
             if animJointName == rigJointName:
-                connectTranslateRotateScale(animJoint, rigJoint)
+                # connectTranslateRotateScale(animJoint, rigJoint)
+                applyParentConstraint(animJoint, rigJoint)
                 break
 
 def saveFile(newFilePath):
