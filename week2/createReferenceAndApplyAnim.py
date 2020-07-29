@@ -113,21 +113,14 @@ def main():
     rigPath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\character.mb'.replace("\\", "/")
     animNs = getFileNamespace(animPath)
     rigNs = getFileNamespace(rigPath)
-    
-    # maya.cmds.file(animPath, o=True, f=True)
-    # firstKeyframe = maya.cmds.findKeyframe(which="first")
-    
-    # print("???")
+
     createNewScene()
-    # print("FUCK ME")
-    # print(firstKeyframe)
 
     createReference(animPath, animNs)
     createReference(rigPath, rigNs)
     
     maya.cmds.select(cl=True)
     animJoints = getJointsFromNamespace(animNs)
-    # maya.cmds.select(animJoints)
     rigJoints = getJointsFromNamespace(rigNs)
     
     firstKeyframe = maya.cmds.findKeyframe(animJoints[0], which="first")
