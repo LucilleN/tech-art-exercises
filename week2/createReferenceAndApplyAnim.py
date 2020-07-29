@@ -87,6 +87,7 @@ def connectAnimAndRigJoints(animJoints, rigJoints):
             rigJointName = rigJoint.split(":")[1]
             if animJointName == rigJointName:
                 connectTranslateRotateScale(animJoint, rigJoint)
+                break
 
 def saveFile(newFilePath):
     """
@@ -111,16 +112,13 @@ def main():
     animNs = getFileNamespace(animPath)
     rigNs = getFileNamespace(rigPath)
     
-    maya.cmds.file(animPath, o=True, f=True)
-    firstKeyframe = maya.cmds.findKeyframe(which="first")
+    # maya.cmds.file(animPath, o=True, f=True)
+    # firstKeyframe = maya.cmds.findKeyframe(which="first")
     
-    print("???")
+    # print("???")
     createNewScene()
-    print("FUCK ME")
-    print(firstKeyframe)
-
-    maya.cmds.playbackOptions(animationStartTime=firstKeyframe, minTime=firstKeyframe)
-    maya.cmds.currentTime(firstKeyframe)
+    # print("FUCK ME")
+    # print(firstKeyframe)
 
     createReference(animPath, animNs)
     createReference(rigPath, rigNs)
@@ -129,10 +127,17 @@ def main():
     animJoints = getJointsFromNamespace(animNs)
     # maya.cmds.select(animJoints)
     rigJoints = getJointsFromNamespace(rigNs)
+    
+    firstKeyframe = maya.cmds.findKeyframe(animJoints[0], which="first")
+    maya.cmds.playbackOptions(animationStartTime=firstKeyframe, minTime=firstKeyframe)
+    maya.cmds.currentTime(firstKeyframe)
+
     connectAnimAndRigJoints(animJoints, rigJoints)
 
     startTime = maya.cmds.playbackOptions(q=True, min=True)
     endTime = maya.cmds.playbackOptions(q=True, max=True)
+    
+    maya.cmds.select(rigJoints)
 
     maya.cmds.bakeResults(
         simulation = True,
@@ -151,7 +156,7 @@ def main():
 
     removeReference(animPath)
 
-    newFilePath = rigPath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\assignment.mb'.replace("\\", "/")
+    newFilePath = r'C:\Users\GoodbyeWorld Dev\Documents\Lucille\Tech for Anim\tech-art-exercises\week2\assignment.mb'.replace("\\", "/")
     saveFile(newFilePath)
 
 if __name__ == "__main__":
