@@ -67,19 +67,30 @@ def connectAnimAndRigJoints(animJoints, rigJoints):
                 applyParentConstraint(animJoint, rigJoint)
                 break
 
-def saveFile(newFilePath):
+def saveFile(tempFilePath, newFilePath):
     """
     Given a new file path, renames the current file and saves.
     """
     # maya.cmds.file(rename=newFilePath)
     # maya.cmds.file(save=True, f=True)
-    pymel.core.saveAs(newFilePath)
+    
+    # pymel.core.saveAs(newFilePath)
+    pymel.core.saveAs(tempFilePath)
+    removeStudentLicenseLine(tempFilePath, newFilePath)
 
 def removeReference(filePathToRemove):
     """
     Removes the reference to the given file path.
     """
     maya.cmds.file(filePathToRemove, rr=True)
+
+def removeStudentLicenseLine(tempFilePath, finalFilePath):
+    with open(tempFilePath, "r") as input:
+        with open(finalFilePath, "w") as output: 
+            for line in input:
+                if line.strip("\n") != r'fileInfo "license" "student";':
+                    output.write(line)
+    os.remove(tempFilePath)
 
 def applyAnimationForOneFile(animPath, destinationFolder):
     # animPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/animations/AAA_0010_tk01.ma"
@@ -125,16 +136,16 @@ def applyAnimationForOneFile(animPath, destinationFolder):
 
     removeReference(animPath)
 
-    newFilePath = "{0}/rig_with_{1}.mb".format(destinationFolder, animNs)
-    saveFile(newFilePath)
+    tempFilePath = "{0}/temp.ma".format(destinationFolder) 
+    finalFilePath = "{0}/rig_with_{1}.ma".format(destinationFolder, animNs)
+    saveFile(tempFilePath, finalFilePath)
 
-def applyAnimationForAllFilesInFolder(folder):
-    destinationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week2/finished-files/"
-    if not os.path.exists(destinationFolder):
-        os.mkdir(destinationFolder)
-    animationFiles = [folder + fileName for fileName in os.listdir(folder)]
+def applyAnimationForAllFilesInFolder(animFolder, destFolder):
+    if not os.path.exists(destFolder):
+        os.mkdir(destFolder)
+    animationFiles = [animFolder + fileName for fileName in os.listdir(animFolder)]
     for animationFile in animationFiles:
-        applyAnimationForOneFile(animationFile, destinationFolder)
+        applyAnimationForOneFile(animationFile, destFolder)
 
 ##########
 # SCRIPT #
@@ -142,7 +153,8 @@ def applyAnimationForAllFilesInFolder(folder):
 
 def main():
     animationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/animations/"
-    applyAnimationForAllFilesInFolder(animationFolder)
+    destinationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/finished-files/"
+    applyAnimationForAllFilesInFolder(animationFolder, destinationFolder)
 
 if __name__ == "__main__":
     main()
