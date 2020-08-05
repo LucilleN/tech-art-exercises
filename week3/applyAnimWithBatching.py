@@ -1,4 +1,3 @@
-import maya.cmds
 import pymel.core
 import os
 
@@ -10,7 +9,6 @@ def createNewScene():
     """
     Creates a new scene.
     """
-    # maya.cmds.file(new=True, force=True)
     pymel.core.newFile(force=True)
 
 def getFileNamespace(filePath):
@@ -33,15 +31,15 @@ def createReference(filePath, ns):
     if not os.path.exists(filePath):
         pymel.core.error("File does not exist: {0}".format(filePath))
         return
-    # maya.cmds.file(filePath, r=True, ns=ns)
     pymel.core.createReference(filePath, namespace=ns)
+    refNode = pymel.core.FileReference(namespace=ns)
+    return refNode
 
 def getJointsFromNamespace(ns):
     """
     Given a namespace, returns a list of all joints
     """
-    return maya.cmds.ls("{0}:*".format(ns), type="joint")
-    # return pymel.core.ls("{0}:*".format(ns), type="joint")
+    return pymel.core.ls("{0}:*".format(ns), type="joint")
 
 def applyParentConstraint(driver, driven):
     """
@@ -49,7 +47,6 @@ def applyParentConstraint(driver, driven):
     object (child, aka the rig to accept the animation), applies a 
     parent constraint.
     """
-    # maya.cmds.parentConstraint(driver, driven, mo=True)
     pymel.core.parentConstraint(driver, driven, mo=True)
 
 def connectAnimAndRigJoints(animJoints, rigJoints):
@@ -71,18 +68,15 @@ def saveFile(tempFilePath, newFilePath):
     """
     Given a new file path, renames the current file and saves.
     """
-    # maya.cmds.file(rename=newFilePath)
-    # maya.cmds.file(save=True, f=True)
-    
     # pymel.core.saveAs(newFilePath)
     pymel.core.saveAs(tempFilePath)
     removeStudentLicenseLine(tempFilePath, newFilePath)
 
-def removeReference(filePathToRemove):
+def removeReference(refNode):
     """
-    Removes the reference to the given file path.
+    Removes the reference represented by the given refNode.
     """
-    maya.cmds.file(filePathToRemove, rr=True)
+    refNode.remove()
 
 def removeStudentLicenseLine(tempFilePath, finalFilePath):
     with open(tempFilePath, "r") as input:
@@ -93,33 +87,31 @@ def removeStudentLicenseLine(tempFilePath, finalFilePath):
     os.remove(tempFilePath)
 
 def applyAnimationForOneFile(animPath, destinationFolder):
-    # animPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/animations/AAA_0010_tk01.ma"
     rigPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/character.mb"
     animNs = getFileNamespace(animPath)
     rigNs = getFileNamespace(rigPath)
 
     createNewScene()
 
-    createReference(animPath, animNs)
-    createReference(rigPath, rigNs)
+    animRefNode = createReference(animPath, animNs)
+    rigRefNode = createReference(rigPath, rigNs)
     
-    maya.cmds.select(cl=True)
+    pymel.core.select(cl=True)
     animJoints = getJointsFromNamespace(animNs)
     rigJoints = getJointsFromNamespace(rigNs)
     
-    firstKeyframe = maya.cmds.findKeyframe(animJoints[0], which="first")
-    maya.cmds.playbackOptions(animationStartTime=firstKeyframe, minTime=firstKeyframe)
-    maya.cmds.currentTime(firstKeyframe)
+    firstKeyframe = pymel.core.findKeyframe(animJoints[0], which="first")
+    pymel.core.playbackOptions(animationStartTime=firstKeyframe, minTime=firstKeyframe)
+    pymel.core.currentTime(firstKeyframe)
 
     connectAnimAndRigJoints(animJoints, rigJoints)
 
-    startTime = maya.cmds.playbackOptions(q=True, min=True)
-    endTime = maya.cmds.playbackOptions(q=True, max=True)
+    startTime = pymel.core.playbackOptions(q=True, min=True)
+    endTime = pymel.core.playbackOptions(q=True, max=True)
     
-    #maya.cmds.select(rigJoints)
     pymel.core.select(rigJoints)
 
-    maya.cmds.bakeResults(
+    pymel.core.bakeResults(
         simulation = True,
         time = (startTime, endTime),
         sampleBy = 1,
@@ -134,7 +126,7 @@ def applyAnimationForOneFile(animPath, destinationFolder):
         shape = True
     )
 
-    removeReference(animPath)
+    removeReference(animRefNode)
 
     tempFilePath = "{0}/temp.ma".format(destinationFolder) 
     finalFilePath = "{0}/rig_with_{1}.ma".format(destinationFolder, animNs)
@@ -146,6 +138,7 @@ def applyAnimationForAllFilesInFolder(animFolder, destFolder):
     animationFiles = [animFolder + fileName for fileName in os.listdir(animFolder)]
     for animationFile in animationFiles:
         applyAnimationForOneFile(animationFile, destFolder)
+        break
 
 ##########
 # SCRIPT #
