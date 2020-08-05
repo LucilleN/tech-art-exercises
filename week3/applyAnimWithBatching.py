@@ -68,9 +68,14 @@ def saveFile(tempFilePath, newFilePath):
     """
     Given a new file path, renames the current file and saves.
     """
-    # pymel.core.saveAs(newFilePath)
-    pymel.core.saveAs(tempFilePath)
-    removeStudentLicenseLine(tempFilePath, newFilePath)
+    pymel.core.saveAs(newFilePath)
+
+    # Again, this was an attempt to stop the student license popup, and it successfully
+    # removes the student license line from the .ma file, but it doesn't stop the 
+    # popup from appearing lol damnit
+
+    # pymel.core.saveAs(tempFilePath)
+    # removeStudentLicenseLine(tempFilePath, newFilePath)
 
 def removeReference(refNode):
     """
@@ -138,6 +143,8 @@ def applyAnimationForOneFile(animPath, destinationFolder, rigPath):
 
     removeReference(animRefNode)
 
+    # this was an attempt to get rid of the student license popup, and it successfully
+    # removes the license line, but it doesn't stop the popup lol
     tempFilePath = "{0}/temp.ma".format(destinationFolder) 
     finalFilePath = "{0}/rig_with_{1}.ma".format(destinationFolder, animNs)
     saveFile(tempFilePath, finalFilePath)
@@ -163,6 +170,7 @@ def main():
     animationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/animations/"
     destinationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/finished-files/"
     rigPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/character.mb"
+
     applyAnimationForAllFilesInFolder(animationFolder, destinationFolder, rigPath)
 
 if __name__ == "__main__":
