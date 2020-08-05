@@ -79,6 +79,11 @@ def removeReference(refNode):
     refNode.remove()
 
 def removeStudentLicenseLine(tempFilePath, finalFilePath):
+    """
+    Removes the Student License line from the given Maya ASCII file (Note: only works 
+    for .ma files, not .mb). This doesn't do anything to help with the popups that come up in this script, but if we were to open up the files we produce, the student
+    license popup should be suppressed. 
+    """
     with open(tempFilePath, "r") as input:
         with open(finalFilePath, "w") as output: 
             for line in input:
@@ -86,8 +91,13 @@ def removeStudentLicenseLine(tempFilePath, finalFilePath):
                     output.write(line)
     os.remove(tempFilePath)
 
-def applyAnimationForOneFile(animPath, destinationFolder):
-    rigPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/character.mb"
+def applyAnimationForOneFile(animPath, destinationFolder, rigPath):
+    """
+    Given the path of an animation file, a rig file, and a destination folder, 
+    applies the animation to the rig using references and parent constraints
+    and saves the resulting file to the destination folder using the name
+    rig_with_{animation file name}.ma .
+    """
     animNs = getFileNamespace(animPath)
     rigNs = getFileNamespace(rigPath)
 
@@ -132,13 +142,18 @@ def applyAnimationForOneFile(animPath, destinationFolder):
     finalFilePath = "{0}/rig_with_{1}.ma".format(destinationFolder, animNs)
     saveFile(tempFilePath, finalFilePath)
 
-def applyAnimationForAllFilesInFolder(animFolder, destFolder):
+def applyAnimationForAllFilesInFolder(animFolder, destFolder, rigPath):
+    """
+    Given the path of a folder of animation files and the path of a rig file, 
+    applies each animation to the given rig one by one and saves each one to the 
+    destination folder.
+    """
     if not os.path.exists(destFolder):
         os.mkdir(destFolder)
     animationFiles = [animFolder + fileName for fileName in os.listdir(animFolder)]
     for animationFile in animationFiles:
-        applyAnimationForOneFile(animationFile, destFolder)
-        break
+        applyAnimationForOneFile(animationFile, destFolder, rigPath)
+        # break # uncomment to run only one loop interation for easier testing
 
 ##########
 # SCRIPT #
@@ -147,7 +162,8 @@ def applyAnimationForAllFilesInFolder(animFolder, destFolder):
 def main():
     animationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/animations/"
     destinationFolder = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/finished-files/"
-    applyAnimationForAllFilesInFolder(animationFolder, destinationFolder)
+    rigPath = "C:/Users/GoodbyeWorld Dev/Documents/Lucille/Tech for Anim/tech-art-exercises/week3/character.mb"
+    applyAnimationForAllFilesInFolder(animationFolder, destinationFolder, rigPath)
 
 if __name__ == "__main__":
     main()
